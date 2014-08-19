@@ -27,7 +27,7 @@ class DefaultEncoder(object):
 
     def to_dict(self, record, expand=False, html_escape=False, fields=None):
         self.html_escape = html_escape
-        if hasattr(record, '__exclude__') and callable(record.__exclude__):
+        if hasattr(record, '__exclude__') and isinstance(record.__exclude__, collections.Callable):
             try:
                 exclude = record.__exclude__()
                 if fields is None:
@@ -45,7 +45,7 @@ class DefaultEncoder(object):
         ret.update(data['fields'])
         ret[AJAX_PK_ATTR_NAME] = data['pk']
 
-        for field, val in ret.iteritems():
+        for field, val in list(ret.items()):
             try:
                 f = record.__class__._meta.get_field(field)
                 if expand and isinstance(f, models.ForeignKey):
@@ -58,7 +58,7 @@ class DefaultEncoder(object):
                     new_value = self._encode_value(f, val)
 
                 ret[smart_str(field)] = new_value
-            except FieldDoesNotExist, e:
+            except FieldDoesNotExist as e:
                 pass  # Assume extra fields are already safe.
                   
         if expand and hasattr(record, 'tags') and \

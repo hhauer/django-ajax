@@ -126,7 +126,7 @@ class ModelEndpoint(object):
             record.full_clean()
             record.save()
             return record
-        except ValidationError, e:
+        except ValidationError as e:
             raise AJAXError(400, _("Could not save model."),
                 errors=e.message_dict)
 
@@ -134,7 +134,7 @@ class ModelEndpoint(object):
     def update(self, request):
         record = self._get_record()
         modified = self._get_record()
-        for key, val in self._extract_data(request).iteritems():
+        for key, val in list(self._extract_data(request).items()):
             setattr(modified, key, val)
         if self.can_update(request.user, record, modified=modified):
 
@@ -183,7 +183,7 @@ class ModelEndpoint(object):
         if raw_tags:
             try:
                 tags = [t for t in parse_tags(raw_tags) if len(t)]
-            except Exception, e:
+            except Exception as e:
                 pass
 
         return tags
@@ -199,7 +199,7 @@ class ModelEndpoint(object):
         load up that record.
         """
         data = {}
-        for field, val in request.POST.iteritems():
+        for field, val in list(request.POST.items()):
             if field in self.immutable_fields:
                 continue  # Ignore immutable fields silently.
 
